@@ -1,0 +1,9 @@
+node_modules
+dist
+.vscode
+.idea
+*.log
+.DS_Store
+.vitest-cache
+app.test.js
+scratch/
