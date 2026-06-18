@@ -1,6 +1,6 @@
 # NoBlur — Post TikTok Videos Without the Blur
 
-NoBlur is a premium, client-side web application that processes MP4 and MOV video containers locally directly in your browser to bypass aggressive server-side recompression when uploading to TikTok. It offers two pipelines: a full re-encode path with MP4 sample-table frame density inflation, and a 60fps VFI interpolation path. The result preserves original quality, visual fidelity, and audio-video synchronization.
+NoBlur is a premium, client-side web application that processes MP4 and MOV video containers locally directly in your browser to bypass aggressive server-side recompression when uploading to TikTok. It uses MP4 sample-table frame density inflation as its core bypass mechanism, with an optional 60fps VFI interpolation path. The result preserves original quality, visual fidelity, and audio-video synchronization.
 
 All processing is performed client-side using JavaScript, ArrayBuffers, Blobs, and FFmpeg.wasm. No data is uploaded to external servers.
 
@@ -10,16 +10,12 @@ All processing is performed client-side using JavaScript, ArrayBuffers, Blobs, a
 
 NoBlur runs two distinct pipelines depending on the Interpolation toggle.
 
-### Non-Interpolation Path (Pure Binary Patching)
+### Non-Interpolation Path (Frame Density Inflation)
 
 The primary path for bypassing TikTok recompression. It rewrites the MP4 sample table using pure binary patching — no FFmpeg re-encode, preserving 100% video quality with 10-100x faster processing.
 
-1. **ZeroLoss Track Bypass:** Rebuilds `edts`/`elst` atoms; the video track receives an edit-list `mediaTime` offset of 6000 ticks for AV sync alignment.
-2. **Quantum Matrix Patch:** Patches the `mvhd` display matrix in-place.
-3. **Udta Strip:** Force-applied — removes encoder signature from the `udta` atom, creating an empty udta if missing for consistency.
-4. **Tkhd Matrix Reset:** Resets track header matrices to identity, preserving rotation metadata when present.
-5. **Frame Density Inflation:** Inflates the sample table by a configurable multiplier (default 10x). Real frames are kept; codec-aware dummy samples are appended with `stts`/`stsz`/`stco`/`stsc` patched and padding written at EOF. Supports VFR (variable frame rate), 64-bit chunk offsets (co64), and per-codec dummy sizes (avc1/avc3: 8B, hvc1/hev1: 16B, vp09/av01: 4B). TikTok reads the inflated frame count as high-density content and skips heavy recompression.
-6. **Comment Udta Injection:** Writes an Apple iTunes-style `©cmt` comment tag.
+1. **Container Normalization:** Ensures optimal MP4 structure with `moov` atom before `mdat` (fast-start) and rewrites `ftyp` brand to "isom" for maximum compatibility.
+2. **Frame Density Inflation:** Inflates the sample table by 10x multiplier. Real frames are kept; codec-aware dummy samples are appended with `stts`/`stsz`/`stco`/`stsc` patched and padding written at EOF. Supports VFR (variable frame rate), 64-bit chunk offsets (co64), and per-codec dummy sizes (avc1/avc3: 8B, hvc1/hev1: 16B, vp09/av01: 4B). TikTok reads the inflated frame count as high-density content and skips heavy recompression.
 
 ### Interpolation Path (60fps VFI + Binary Patch Pipeline)
 

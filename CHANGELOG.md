@@ -2,6 +2,16 @@
 
 All notable changes to the NoBlur project are documented in this file.
 
+## [2.4.0] - 2026-06-18
+
+**Pipeline Simplification — Single-Pass Frame Density Inflation**
+
+- Confirmed: Frame Density Inflation alone bypasses TikTok recompression
+- Non-Interpolation path reduced from 7 passes to 1 (container normalize + inflate)
+- Removed: ZeroLoss Track Bypass (`rebuildWithElstBypass`), Quantum Matrix (`patchMvhdMatrix`), Udta Strip (`stripUdtaAtom`), Tkhd Matrix Reset (`stripTkhdMatrix`), Comment Udta Injection (`injectCommentUdta`)
+- Deleted `src/mp4-strip.mjs` (3 unused exports) and `src/mp4-patches.mjs` (3 unused exports including internal `buildEdtsAtom`)
+- Pipeline is now: `normalizeContainer` → `inflateSampleTableVideo(10x)` → download
+
 ## [2.3.0] - 2026-06-17
 
 - VFI audio now uses `-c:a copy` (preserves original, faster processing)
