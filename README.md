@@ -48,10 +48,10 @@ When the Interpolation toggle is enabled, FFmpeg.wasm is lazy-loaded to run moti
 NoBlur/
 ├── public/
 │   └── coi-serviceworker.js
+├── scripts/
+│   └── generate-changelog.mjs
 ├── src/
 │   ├── mp4-boxes.mjs
-│   ├── mp4-patches.mjs
-│   ├── mp4-strip.mjs
 │   ├── mp4-inflate.mjs
 │   ├── changelog.mjs
 │   ├── changelog-data.mjs
@@ -74,4 +74,4 @@ See [CHANGELOG.md](./CHANGELOG.md) for the full release history.
 
 ## Disclaimer
 
-This utility rewrites MP4 container metadata using binary patching to bypass platform recompression. No video or audio data is re-encoded in the main pipeline, preserving original quality. The interpolation path (optional) uses FFmpeg.wasm for frame rate conversion only. It is designed to work with valid MP4 and MOV containers. Always keep backups of your original video files before processing.
+This utility rewrites MP4 container metadata using sample-table inflation to bypass platform recompression. No video or audio data is re-encoded in the main pipeline, preserving original quality. The interpolation path (optional) uses FFmpeg.wasm for frame rate conversion only. It is designed to work with valid MP4 and MOV containers. Always keep backups of your original video files before processing.
