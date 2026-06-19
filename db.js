@@ -92,29 +92,3 @@ export async function clearAllRecords() {
         };
     });
 }
-
-export async function pruneOldRecords() {
-    return Promise.resolve();
-}
-
-export async function getHistoryTotalSize() {
-    const db = await openDB();
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction(STORE_NAME, "readonly");
-        const store = transaction.objectStore(STORE_NAME);
-        const request = store.openCursor();
-        let total = 0;
-        request.onsuccess = (event) => {
-            const cursor = event.target.result;
-            if (cursor) {
-                total += cursor.value.size || 0;
-                cursor.continue();
-            } else {
-                resolve(total);
-            }
-        };
-        request.onerror = (event) => {
-            reject(event.target.error);
-        };
-    });
-}

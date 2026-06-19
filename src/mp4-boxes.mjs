@@ -82,11 +82,3 @@ export function updateChunkOffsets(newBytes, newView, boxStart, boxEnd, delta) {
         }
     }
 }
-
-export function getTkhdDuration(bytes, view, tkhdOffset) {
-    const version = bytes[tkhdOffset + 8];
-    if (version === 1) {
-        return Number(view.getBigUint64(tkhdOffset + 36, false));
-    }
-    return view.getUint32(tkhdOffset + 28, false);
-}
