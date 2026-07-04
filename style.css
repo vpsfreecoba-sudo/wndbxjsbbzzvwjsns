@@ -1035,6 +1035,16 @@ body {
     margin-bottom: var(--space-sm);
 }
 
+.interpolator-description {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--color-muted);
+    line-height: 1.5;
+    margin-top: var(--space-xs);
+    padding-left: 26px;
+}
+
 .interpolator-info {
     display: flex;
     flex-direction: column;
