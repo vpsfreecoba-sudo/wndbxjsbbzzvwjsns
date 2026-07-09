@@ -300,6 +300,40 @@ body {
     flex: 1;
 }
 
+.panel-log {
+    position: relative;
+}
+
+.panel-log .log-copy-btn {
+    position: absolute;
+    bottom: var(--space-sm);
+    right: var(--space-sm);
+    background: var(--bg-panel);
+    border: var(--border-thick);
+    padding: 2px 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 2px 2px 0px #000000;
+    transition: box-shadow 0.1s, transform 0.1s;
+    color: var(--color-muted);
+    z-index: 2;
+}
+
+.panel-log .log-copy-btn:hover {
+    box-shadow: none;
+    transform: translate(2px, 2px);
+    color: var(--color-accent);
+}
+
+.panel-log .log-copy-btn svg {
+    width: 12px;
+    height: 12px;
+    stroke: currentColor;
+    stroke-width: 2.2;
+}
+
 .log-header {
     display: flex;
     justify-content: space-between;
@@ -316,32 +350,6 @@ body {
     letter-spacing: 1px;
     color: var(--color-muted);
     text-transform: uppercase;
-}
-
-.log-copy-btn {
-    background: none;
-    border: var(--border-thick);
-    padding: 2px 6px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 2px 2px 0px #000000;
-    transition: box-shadow 0.1s, transform 0.1s;
-    color: var(--color-muted);
-}
-
-.log-copy-btn:hover {
-    box-shadow: none;
-    transform: translate(2px, 2px);
-    color: var(--color-accent);
-}
-
-.log-copy-btn svg {
-    width: 12px;
-    height: 12px;
-    stroke: currentColor;
-    stroke-width: 2.2;
 }
 
 .status-log::-webkit-scrollbar {
@@ -1370,8 +1378,7 @@ body {
         flex: none;
     }
     .log-header {
-        display: flex;
-        margin-top: var(--space-sm);
+        display: none !important;
     }
     .info-note {
         order: 2;
