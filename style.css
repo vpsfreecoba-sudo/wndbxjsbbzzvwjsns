@@ -280,23 +280,24 @@ body {
 }
 
 .progress-bar.indeterminate {
-    width: 40%;
+    width: 100%;
     background-image: repeating-linear-gradient(
         45deg,
         var(--color-accent) 0,
-        var(--color-accent) 10px,
-        var(--color-primary) 10px,
-        var(--color-primary) 20px
+        var(--color-accent) 12px,
+        var(--color-primary) 12px,
+        var(--color-primary) 24px
     );
-    animation: progress-slide 1s linear infinite;
+    background-size: 34px 34px;
+    animation: progress-slide 0.8s linear infinite;
 }
 
 @keyframes progress-slide {
     0% {
-        transform: translateX(-100%);
+        background-position: 0 0;
     }
     100% {
-        transform: translateX(250%);
+        background-position: 34px 0;
     }
 }
 

@@ -679,8 +679,6 @@ async function getFFmpeg() {
     ffmpegInstance.on("progress", ({ progress }) => {
         setProgress(Math.round(progress * 100));
     });
-    showProgress();
-    progressBar.classList.add("indeterminate");
     try {
         const loadConfig = {
             coreURL: `${baseURL}/ffmpeg-core.js`,
@@ -760,6 +758,8 @@ async function runVFI(file, width, height, targetRes = 1080) {
             "Interpolating video frames to 60fps... This may take up to a minute.",
             "info",
         );
+        showProgress();
+        progressBar.classList.add("indeterminate");
 
         const args = [
             "-y",
