@@ -813,36 +813,6 @@ async function runVFI(file, width, height, targetRes = 1080) {
     }
 }
 
-async function extractMovThumbnail(file) {
-    const { fetchFile } = await import("@ffmpeg/util");
-    let instance;
-    try {
-        instance = await getFFmpeg();
-        await instance.writeFile("thumb_input.mov", await fetchFile(file));
-        await instance.exec([
-            "-i",
-            "thumb_input.mov",
-            "-ss",
-            "0.1",
-            "-vframes",
-            "1",
-            "-f",
-            "mjpeg",
-            "thumb.jpg",
-        ]);
-        const data = await instance.readFile("thumb.jpg");
-        await instance.deleteFile("thumb_input.mov").catch(() => {});
-        await instance.deleteFile("thumb.jpg").catch(() => {});
-        await destroyFFmpegInstance();
-        if (data && data.length > 100) {
-            return data.buffer;
-        }
-    } catch (_) {
-        await destroyFFmpegInstance();
-    }
-    return null;
-}
-
 function detectVideoCodecFromMoov(bytes, view, moovBox) {
     const moovChildren = parseBoxes(
         bytes,
@@ -1078,12 +1048,15 @@ async function patchSingleFile(item) {
         : 1080;
 
     let sourceBuffer = null;
-    let movThumbnailBuffer = null;
+    let movThumbnail = null;
 
     if (isMovFile(item.file) && !enableInterpolation?.checked) {
         logMessage("Processing MOV file directly...", "info");
-        logMessage("Extracting thumbnail from MOV...", "info");
-        movThumbnailBuffer = await extractMovThumbnail(item.file);
+        try {
+            movThumbnail = await captureVideoFrame(item.file);
+        } catch (_) {
+            movThumbnail = null;
+        }
         if (isCancelled) throw new Error("Cancelled");
     }
 
@@ -1180,7 +1153,7 @@ async function patchSingleFile(item) {
         outputName,
         mimeType,
         prePatchBuffer: sourceBuffer,
-        movThumbnailBuffer,
+        movThumbnail,
     };
 }
 
@@ -1381,15 +1354,8 @@ patchBtn.addEventListener("click", async () => {
                     });
 
                     let thumbnail = null;
-                    if (result.movThumbnailBuffer) {
-                        const thumbBytes = new Uint8Array(
-                            result.movThumbnailBuffer,
-                        );
-                        let binary = "";
-                        for (let j = 0; j < thumbBytes.length; j++) {
-                            binary += String.fromCharCode(thumbBytes[j]);
-                        }
-                        thumbnail = `data:image/jpeg;base64,${btoa(binary)}`;
+                    if (result.movThumbnail) {
+                        thumbnail = result.movThumbnail;
                         logMessage(
                             "Thumbnail captured from MOV extraction",
                             "info",
