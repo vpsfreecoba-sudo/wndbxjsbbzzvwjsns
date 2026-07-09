@@ -1366,7 +1366,16 @@ body {
         box-sizing: border-box;
     }
     .panel-log {
-        display: contents;
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-panel);
+        border: var(--border-thick);
+        box-shadow: var(--shadow-flat);
+        border-radius: 4px;
+        padding: var(--space-md);
+        width: 100%;
+        box-sizing: border-box;
+        position: relative;
     }
     .status-log,
     .panel-log .status-log {
