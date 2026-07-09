@@ -745,6 +745,9 @@ async function runVFI(file, width, height, targetRes = 1080) {
         );
 
         const args = [
+            "-y",
+            "-loglevel",
+            "error",
             "-i",
             inputName,
             "-vf",
@@ -1051,31 +1054,58 @@ async function patchSingleFile(item) {
     }
 
     if (enableInterpolation?.checked) {
-        logMessage("Starting VFI Engine for 60fps interpolation...", "info");
-        if (isCancelled) throw new Error("Cancelled");
-
         const fileBytes = new Uint8Array(await item.file.arrayBuffer());
         const fileView = new DataView(fileBytes.buffer);
         const dims = getDimensionsFromMp4Container(fileBytes, fileView);
+        const topBoxes = parseBoxes(fileBytes, fileView, 0, fileBytes.length);
+        const moovBox = topBoxes.find((b) => b.type === "moov");
+        let codec = null;
+        if (moovBox) {
+            codec = detectVideoCodecFromMoov(fileBytes, fileView, moovBox);
+        }
+
         if (!dims) {
             throw new Error("Could not parse video dimensions from container.");
         }
 
-        const workingBuffer = await runVFI(
-            item.file,
-            dims.width,
-            dims.height,
-            targetRes,
-        );
-        sourceBuffer = workingBuffer;
-        logMessage(
-            "VFI interpolation complete. Proceeding to binary patch pipeline...",
-            "success",
-        );
+        if (codec === "hvc1" || codec === "hev1") {
+            logMessage(
+                `Starting VFI Engine for 60fps interpolation...`,
+                "info",
+            );
+            logMessage(
+                `Warning: HEVC MOV (${codec}) may not be supported by ffmpeg.wasm. Skipping VFI and using direct inflation.`,
+                "warning"
+            );
+        } else {
+            logMessage(
+                "Starting VFI Engine for 60fps interpolation...",
+                "info",
+            );
+        }
+        if (isCancelled) throw new Error("Cancelled");
 
-        await destroyFFmpegInstance();
-        logMessage("VFI engine reset for binary patch pipeline...", "info");
-    }
+        if (codec !== "hvc1" && codec !== "hev1") {
+            const workingBuffer = await runVFI(
+                item.file,
+                dims.width,
+                dims.height,
+                targetRes,
+            );
+            sourceBuffer = workingBuffer;
+            logMessage(
+                "VFI interpolation complete. Proceeding to binary patch pipeline...",
+                "success",
+            );
+
+            await destroyFFmpegInstance();
+            logMessage("VFI engine reset for binary patch pipeline...", "info");
+        } else {
+            logMessage(
+                "Skipping VFI for HEVC MOV, proceeding to direct inflation...",
+                "warning",
+            );
+        }
 
     if (isCancelled) throw new Error("Cancelled");
 
