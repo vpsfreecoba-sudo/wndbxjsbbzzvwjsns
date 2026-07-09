@@ -1465,7 +1465,7 @@ patchBtn.addEventListener("click", async () => {
         successCount === pendingItems.length ? "completed" : "idle";
     setProgress(100);
     releaseWakeLock();
-    if (currentFlowState === "completed") setLogCopyVisible(true);
+    setLogCopyVisible(true);
     logMessage(
         `Done. ${successCount}/${pendingItems.length} file(s) patched successfully.`,
         successCount === pendingItems.length ? "success" : "warning",
