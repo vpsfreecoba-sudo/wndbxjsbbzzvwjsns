@@ -378,7 +378,7 @@ function renderFileList() {
         fileListEl.appendChild(row);
         index++;
     }
-    refreshIcons();
+    // Remix Icon CSS handles rendering
 }
 
 async function addFiles(fileList) {
@@ -1479,7 +1479,7 @@ patchBtn.addEventListener("click", async () => {
     clearBtn.disabled = false;
     renderFileList();
     updatePatchButton();
-    refreshIcons();
+    // Remix Icon CSS handles rendering
 });
 
 async function renderHistoryList() {
@@ -1561,7 +1561,7 @@ async function renderHistoryList() {
 
         historyList.appendChild(item);
     }
-    refreshIcons();
+    // Remix Icon CSS handles rendering
 }
 
 historyHeader.addEventListener("click", () => {
