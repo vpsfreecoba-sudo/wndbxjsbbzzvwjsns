@@ -159,6 +159,11 @@ function clearLog() {
     statusLog.innerHTML = "";
 }
 
+function setLogCopyVisible(visible) {
+    const copyBtn = document.getElementById("copyLogBtn");
+    if (copyBtn) copyBtn.classList.toggle("visible", visible);
+}
+
 function setProgress(percent) {
     progressBar.style.width = `${percent}%`;
 }
@@ -1336,6 +1341,7 @@ patchBtn.addEventListener("click", async () => {
     lastPatchedVfi = !!enableInterpolation?.checked;
     lastPatchedRes =
         document.getElementById("outputResolution")?.value || "1080";
+    setLogCopyVisible(false);
     clearLog();
     patchBtn.disabled = true;
     clearBtn.innerText = "Cancel";
@@ -1475,6 +1481,7 @@ patchBtn.addEventListener("click", async () => {
         setProgress(0);
         hideProgress();
         releaseWakeLock();
+        setLogCopyVisible(false);
         clearBtn.innerText = "Clear";
         logMessage("Interpolation progress cancelled by user.", "warning");
         renderFileList();
@@ -1486,6 +1493,7 @@ patchBtn.addEventListener("click", async () => {
     currentFlowState = "completed";
     setProgress(100);
     releaseWakeLock();
+    setLogCopyVisible(true);
     logMessage(
         `Done. ${successCount}/${pendingItems.length} file(s) patched successfully.`,
         successCount === pendingItems.length ? "success" : "warning",
