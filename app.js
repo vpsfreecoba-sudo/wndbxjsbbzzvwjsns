@@ -690,10 +690,7 @@ async function getFFmpeg() {
                 `${baseURL}/ffmpeg-core.wasm`,
                 "application/wasm",
             ),
-            classWorkerURL: await toBlobURL(
-                "https://esm.sh/@ffmpeg/ffmpeg@0.12.15/es2022/dist/esm/worker.bundle.mjs",
-                "text/javascript",
-            ),
+            classWorkerURL: "/ffmpeg-worker/worker.js",
         };
         if (isMultiThread) {
             loadConfig.workerURL = await toBlobURL(
@@ -1462,7 +1459,11 @@ patchBtn.addEventListener("click", async () => {
             }
             item.status = "error";
             item.checked = false;
-            logMessage(`  Error: ${error.message}`, "error");
+            const msg =
+                error instanceof Error
+                    ? error.message
+                    : String(error);
+            logMessage(`  Error: ${msg}`, "error");
         }
 
         renderFileList();
