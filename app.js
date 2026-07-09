@@ -1069,10 +1069,6 @@ async function patchSingleFile(item) {
 
         if (codec === "hvc1" || codec === "hev1") {
             logMessage(
-                `Starting VFI Engine for 60fps interpolation...`,
-                "info",
-            );
-            logMessage(
                 `Warning: HEVC MOV (${codec}) may not be supported by ffmpeg.wasm. Skipping VFI and using direct inflation.`,
                 "warning"
             );
@@ -1085,6 +1081,7 @@ async function patchSingleFile(item) {
         if (isCancelled) throw new Error("Cancelled");
 
         if (codec !== "hvc1" && codec !== "hev1") {
+            logMessage("Loading VFI engine...", "info");
             const workingBuffer = await runVFI(
                 item.file,
                 dims.width,
@@ -1099,13 +1096,9 @@ async function patchSingleFile(item) {
 
             await destroyFFmpegInstance();
             logMessage("VFI engine reset for binary patch pipeline...", "info");
-        } else {
-            logMessage(
-                "Skipping VFI for HEVC MOV, proceeding to direct inflation...",
-                "warning",
-            );
         }
 
+    }
     if (isCancelled) throw new Error("Cancelled");
 
     let videoInfo = null;
