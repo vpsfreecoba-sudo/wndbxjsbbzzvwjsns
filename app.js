@@ -713,7 +713,7 @@ async function runVFI(file, width, height, targetRes = 1080) {
         if (isCancelled) throw new Error("Cancelled");
         const ext = resolveInputExtension(file);
         const inputName = `input${ext}`;
-        const outputName = `output${ext}`;
+        const outputName = "output.mp4";
 
         logMessage("Preparing video data streams...", "info");
         await instance.writeFile(inputName, await fetchFile(file));
@@ -1276,7 +1276,8 @@ patchBtn.addEventListener("click", async () => {
                 updatePatchButton();
             } else {
                 const checkedCount = selectedFiles.filter(
-                    (f) => f.status === "success" && f.checked && f.patchedBuffer,
+                    (f) =>
+                        f.status === "success" && f.checked && f.patchedBuffer,
                 ).length;
                 if (checkedCount > 0) {
                     await downloadSelectedFiles();
