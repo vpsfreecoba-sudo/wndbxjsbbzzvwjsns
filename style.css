@@ -1392,11 +1392,20 @@ body {
         box-sizing: border-box;
     }
     .panel-log {
-        display: contents;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-xs);
+        background: var(--bg-panel);
+        border: var(--border-thick);
+        box-shadow: var(--shadow-flat);
+        border-radius: 4px;
+        padding: var(--space-md);
+        width: 100%;
+        box-sizing: border-box;
+        order: 6;
     }
     .status-log,
     .panel-log .status-log {
-        order: 6;
         width: 100%;
         box-sizing: border-box;
         min-height: 100px;
