@@ -733,8 +733,9 @@ async function runVFI(file, width, height, targetRes = 1080) {
 
         const isMobile = isMobileDevice();
         const vfiRes = isMobile ? Math.min(targetRes, 720) : targetRes;
+        const meMode = isMobile ? "bidir" : "bilat";
         let filter =
-            "mpdecimate,minterpolate=fps=60:mi_mode=mci:me_mode=bilat:me=epzs:search_param=4";
+            `mpdecimate,minterpolate=fps=60:mi_mode=mci:me_mode=${meMode}:me=epzs:search_param=4:scd=none`;
         if (width > height) {
             filter = `scale=-2:${vfiRes},${filter}`;
         } else {
