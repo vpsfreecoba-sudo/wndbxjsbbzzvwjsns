@@ -305,7 +305,7 @@ body {
     position: absolute;
     bottom: var(--space-xs);
     right: var(--space-xs);
-    background: var(--bg-panel);
+    background: var(--color-accent);
     border: var(--border-thick);
     padding: 2px 6px;
     cursor: pointer;
@@ -314,14 +314,15 @@ body {
     justify-content: center;
     box-shadow: 2px 2px 0px #000000;
     transition: box-shadow 0.1s, transform 0.1s;
-    color: var(--color-muted);
+    color: #000000;
     z-index: 2;
 }
 
 .log-copy-btn:hover {
     box-shadow: none;
     transform: translate(2px, 2px);
-    color: var(--color-accent);
+    background: var(--color-primary);
+    color: #000000;
 }
 
 .log-copy-btn svg {
@@ -329,6 +330,32 @@ body {
     height: 12px;
     stroke: currentColor;
     stroke-width: 2.2;
+}
+
+.log-copy-toast {
+    position: absolute;
+    bottom: var(--space-xs);
+    right: calc(var(--space-xs) + 38px);
+    background: var(--color-accent);
+    color: #000000;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border: var(--border-thick);
+    box-shadow: 2px 2px 0px #000000;
+    opacity: 0;
+    transform: translateY(4px);
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    z-index: 2;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.log-copy-toast.show {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .log-header {

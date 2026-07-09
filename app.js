@@ -115,7 +115,9 @@ function initializeApp() {
     window.addEventListener("resize", adjustMobileLayout);
 
     const copyBtn = document.getElementById("copyLogBtn");
+    const copyToast = document.getElementById("copyLogToast");
     if (copyBtn) {
+        let toastTimer = null;
         copyBtn.addEventListener("click", async () => {
             const text = [...statusLog.querySelectorAll(".log-row")]
                 .map((r) => r.textContent)
@@ -123,15 +125,23 @@ function initializeApp() {
             if (!text) return;
             try {
                 await navigator.clipboard.writeText(text);
-                const orig = copyBtn.innerHTML;
-                copyBtn.innerHTML = '<i data-lucide="check"></i>';
-                refreshIcons();
-                setTimeout(() => {
-                    copyBtn.innerHTML = orig;
-                    refreshIcons();
-                }, 1500);
+                if (copyToast) {
+                    copyToast.textContent = "Copied";
+                    copyToast.classList.add("show");
+                    clearTimeout(toastTimer);
+                    toastTimer = setTimeout(() => {
+                        copyToast.classList.remove("show");
+                    }, 1500);
+                }
             } catch {
-                // clipboard may be unavailable
+                if (copyToast) {
+                    copyToast.textContent = "Copy failed";
+                    copyToast.classList.add("show");
+                    clearTimeout(toastTimer);
+                    toastTimer = setTimeout(() => {
+                        copyToast.classList.remove("show");
+                    }, 1500);
+                }
             }
         });
     }
