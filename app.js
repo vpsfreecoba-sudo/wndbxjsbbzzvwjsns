@@ -1216,6 +1216,10 @@ async function patchSingleFile(item) {
     if (normalized.changed) {
         logMessage("  [Pass 1/1] Container normalized.", "success");
     } else if (!normalized.valid) {
+        const topTypes = parseBoxes(inputBytes, inputView, 0, inputBytes.length)
+            .map((b) => b.type)
+            .join(",");
+        logMessage(`  Debug: top boxes = [${topTypes}]`, "error");
         throw new Error("Invalid container: moov box not found");
     } else {
         logMessage("  [Pass 1/1] Container already normalized.", "info");
