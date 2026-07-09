@@ -16,6 +16,22 @@ const DUMMY_SIZES = {
 };
 const DEFAULT_DUMMY_SIZE = 8;
 
+function findHandlerType(bytes, hdlrBox) {
+    const start = hdlrBox.offset + 8;
+    const end = hdlrBox.end;
+    for (let i = start; i + 4 <= end; i++) {
+        if (
+            bytes[i] === 0x76 &&
+            bytes[i + 1] === 0x69 &&
+            bytes[i + 2] === 0x64 &&
+            bytes[i + 3] === 0x65
+        ) {
+            return "vide";
+        }
+    }
+    return null;
+}
+
 function findVideoStbl(bytes, view, moovBox) {
     const moovChildren = parseBoxes(
         bytes,
@@ -43,13 +59,7 @@ function findVideoStbl(bytes, view, moovBox) {
         const hdlrBox = mdiaChildren.find((b) => b.type === "hdlr");
         if (!hdlrBox) continue;
 
-        const handlerType = String.fromCharCode(
-            bytes[hdlrBox.offset + 16],
-            bytes[hdlrBox.offset + 17],
-            bytes[hdlrBox.offset + 18],
-            bytes[hdlrBox.offset + 19],
-        );
-        if (handlerType !== "vide") continue;
+        if (findHandlerType(bytes, hdlrBox) !== "vide") continue;
 
         const minfBox = mdiaChildren.find((b) => b.type === "minf");
         if (!minfBox) continue;

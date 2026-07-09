@@ -492,6 +492,22 @@ function updatePatchButton() {
     }
 }
 
+function findHandlerType(bytes, hdlrBox) {
+    const start = hdlrBox.offset + getBoxHeaderSize(hdlrBox);
+    const end = hdlrBox.end;
+    for (let i = start; i + 4 <= end; i++) {
+        if (
+            bytes[i] === 0x76 &&
+            bytes[i + 1] === 0x69 &&
+            bytes[i + 2] === 0x64 &&
+            bytes[i + 3] === 0x65
+        ) {
+            return "vide";
+        }
+    }
+    return null;
+}
+
 function getDimensionsFromMp4Container(bytes, view) {
     const top = parseBoxes(bytes, view, 0, bytes.length);
     const moov = top.find((b) => b.type === "moov");
@@ -522,13 +538,7 @@ function getDimensionsFromMp4Container(bytes, view) {
         );
         const hdlr = mch.find((b) => b.type === "hdlr");
         if (!hdlr) continue;
-        const tt = String.fromCharCode(
-            bytes[hdlr.offset + 16],
-            bytes[hdlr.offset + 17],
-            bytes[hdlr.offset + 18],
-            bytes[hdlr.offset + 19],
-        );
-        if (tt !== "vide") continue;
+        if (findHandlerType(bytes, hdlr) !== "vide") continue;
 
         const cs = tkhd.offset + getBoxHeaderSize(tkhd);
         const ver = bytes[cs];
