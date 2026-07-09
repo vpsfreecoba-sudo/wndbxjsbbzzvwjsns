@@ -1352,6 +1352,7 @@ patchBtn.addEventListener("click", async () => {
             successCount++;
 
             if (
+                item.status === "success" &&
                 result.finalBuffer &&
                 result.finalBuffer.byteLength !== undefined
             ) {
@@ -1465,7 +1466,8 @@ patchBtn.addEventListener("click", async () => {
         return;
     }
 
-    currentFlowState = successCount === pendingItems.length ? "completed" : "idle";
+    currentFlowState =
+        successCount === pendingItems.length ? "completed" : "idle";
     setProgress(100);
     releaseWakeLock();
     if (currentFlowState === "completed") setLogCopyVisible(true);
