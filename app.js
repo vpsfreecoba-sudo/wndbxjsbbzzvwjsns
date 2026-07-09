@@ -1129,8 +1129,9 @@ async function patchSingleFile(item) {
         }
 
         if (codec === "hvc1" || codec === "hev1") {
+            const container = isMovFile(item.file) ? "MOV" : "MP4";
             logMessage(
-                `HEVC MOV (${codec}) detected - using multi-thread VFI engine.`,
+                `HEVC ${container} (${codec}) detected - using multi-thread VFI engine.`,
                 "info"
             );
         } else {
