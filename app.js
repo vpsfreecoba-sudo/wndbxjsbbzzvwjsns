@@ -767,17 +767,16 @@ async function runVFI(file, width, height, targetRes = 1080) {
             outputName,
         ];
 
-        let ffmpegError = "";
+        let ffmpegLog = "";
         const logHandler = ({ message }) => {
-            if (/error|invalid|unable|cannot|failed/i.test(message))
-                ffmpegError += message + "\n";
+            ffmpegLog += message + "\n";
         };
         instance.on("log", logHandler);
 
         const ret = await instance.exec(args);
         instance.off?.("log", logHandler);
         if (ret !== 0) {
-            const tail = ffmpegError.trim().split("\n").slice(-6).join("\n");
+            const tail = ffmpegLog.trim().split("\n").slice(-12).join("\n");
             logMessage("VFI ffmpeg failed (exit " + ret + "):", "error");
             if (tail) logMessage(tail, "error");
             await instance.deleteFile(inputName).catch(() => {});
