@@ -301,6 +301,9 @@ body {
 }
 
 .log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     border-bottom: var(--border-thick);
     padding-bottom: var(--space-xs);
     margin-bottom: var(--space-xs);
@@ -313,6 +316,32 @@ body {
     letter-spacing: 1px;
     color: var(--color-muted);
     text-transform: uppercase;
+}
+
+.log-copy-btn {
+    background: none;
+    border: var(--border-thick);
+    padding: 2px 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 2px 2px 0px #000000;
+    transition: box-shadow 0.1s, transform 0.1s;
+    color: var(--color-muted);
+}
+
+.log-copy-btn:hover {
+    box-shadow: none;
+    transform: translate(2px, 2px);
+    color: var(--color-accent);
+}
+
+.log-copy-btn svg {
+    width: 12px;
+    height: 12px;
+    stroke: currentColor;
+    stroke-width: 2.2;
 }
 
 .status-log::-webkit-scrollbar {

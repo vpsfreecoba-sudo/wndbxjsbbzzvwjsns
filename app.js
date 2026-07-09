@@ -113,6 +113,28 @@ function initializeApp() {
     renderHistoryList();
     adjustMobileLayout();
     window.addEventListener("resize", adjustMobileLayout);
+
+    const copyBtn = document.getElementById("copyLogBtn");
+    if (copyBtn) {
+        copyBtn.addEventListener("click", async () => {
+            const text = [...statusLog.querySelectorAll(".log-row")]
+                .map((r) => r.textContent)
+                .join("\n");
+            if (!text) return;
+            try {
+                await navigator.clipboard.writeText(text);
+                const orig = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i data-lucide="check"></i>';
+                refreshIcons();
+                setTimeout(() => {
+                    copyBtn.innerHTML = orig;
+                    refreshIcons();
+                }, 1500);
+            } catch {
+                // clipboard may be unavailable
+            }
+        });
+    }
 }
 
 function logMessage(text, type = "info") {
