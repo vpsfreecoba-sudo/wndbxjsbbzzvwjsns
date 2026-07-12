@@ -663,7 +663,8 @@ async function getFFmpeg() {
     const repoBase =
         location.pathname.substring(0, location.pathname.lastIndexOf("/") + 1) ||
         "/";
-    const baseURL = `${repoBase}${isMultiThread ? "ffmpeg-core-mt" : "ffmpeg-core"}`;
+    const absBase = new URL(repoBase, location.href).href;
+    const baseURL = `${absBase}${isMultiThread ? "ffmpeg-core-mt" : "ffmpeg-core"}`;
     ffmpegInstance.on("progress", ({ progress }) => {
         setProgress(Math.round(progress * 100));
     });
@@ -671,7 +672,7 @@ async function getFFmpeg() {
         const loadConfig = {
             coreURL: `${baseURL}/ffmpeg-core.js`,
             wasmURL: `${baseURL}/ffmpeg-core.wasm`,
-            classWorkerURL: `${repoBase}ffmpeg-worker/worker.js`,
+            classWorkerURL: `${absBase}ffmpeg-worker/worker.js`,
         };
         if (isMultiThread) {
             loadConfig.workerURL = `${baseURL}/ffmpeg-core.worker.js`;
