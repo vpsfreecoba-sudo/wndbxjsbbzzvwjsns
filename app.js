@@ -6,12 +6,15 @@ import {
 } from "./db.js";
 import { initChangelog } from "./src/changelog.mjs";
 import {
+    detectVideoCodecFromMoov,
+    findHandlerType,
     getBoxHeaderSize,
     parseBoxes,
     updateBoxSize,
     updateChunkOffsets,
 } from "./src/mp4-boxes.mjs";
 import { inflateSampleTableVideo } from "./src/mp4-inflate.mjs";
+import { normalizeContainer } from "./src/mp4-normalize.mjs";
 
 const FRAME_CAPTURE_TIMEOUT_MS = 5000;
 const METADATA_TIMEOUT_MS = 10000;
@@ -496,22 +499,6 @@ function updatePatchButton() {
     }
 }
 
-function findHandlerType(bytes, hdlrBox) {
-    const start = hdlrBox.offset + getBoxHeaderSize(hdlrBox);
-    const end = hdlrBox.end;
-    for (let i = start; i + 4 <= end; i++) {
-        if (
-            bytes[i] === 0x76 &&
-            bytes[i + 1] === 0x69 &&
-            bytes[i + 2] === 0x64 &&
-            bytes[i + 3] === 0x65
-        ) {
-            return "vide";
-        }
-    }
-    return null;
-}
-
 function getDimensionsFromMp4Container(bytes, view) {
     const top = parseBoxes(bytes, view, 0, bytes.length);
     const moov = top.find((b) => b.type === "moov");
@@ -704,7 +691,7 @@ function resolveInputExtension(file) {
     return ".mp4";
 }
 
-async function runVFI(file, width, height, targetRes = 1080, duration = 0) {
+async function runVFI(file, width, height, targetRes = 1080) {
     const { fetchFile } = await import("@ffmpeg/util");
 
     let instance;
@@ -802,9 +789,6 @@ async function runVFI(file, width, height, targetRes = 1080, duration = 0) {
             return data;
         };
 
-        const SEGMENT_SECONDS = 5;
-        const useSegment = typeof duration === "number" && duration > 0;
-
         logMessage(
             "Interpolating video frames to 60fps... This may take up to a minute.",
             "info",
@@ -812,91 +796,10 @@ async function runVFI(file, width, height, targetRes = 1080, duration = 0) {
         showProgress();
         progressBar.classList.add("indeterminate");
 
-        let outputData;
-        if (useSegment) {
-            const segmentCount = Math.ceil(duration / SEGMENT_SECONDS);
-            if (duration > 30) {
-                logMessage(
-                    `Large video (${duration.toFixed(0)}s) - processing in ${segmentCount} segments to avoid OOM.`,
-                    "info",
-                );
-            } else {
-                logMessage(
-                    `Processing in ${segmentCount} segments (${SEGMENT_SECONDS}s each) to keep memory stable.`,
-                    "info",
-                );
-            }
-            const chunkNames = [];
-            for (let i = 0; i < segmentCount; i++) {
-                const start = i * SEGMENT_SECONDS;
-                const len = Math.min(SEGMENT_SECONDS, duration - start);
-                const chunkName = `chunk_${i}.mp4`;
-                logMessage(
-                    `  Segment ${i + 1}/${segmentCount} (${start.toFixed(0)}-${(start + len).toFixed(0)}s)...`,
-                    "info",
-                );
-                const args = buildArgs(buildFilter(), chunkName, [
-                    "-ss",
-                    start.toFixed(3),
-                    "-t",
-                    len.toFixed(3),
-                    "-an",
-                ]);
-                await runAndRead(args, chunkName, true);
-                chunkNames.push(chunkName);
-            }
-            const inputFlags = chunkNames.map((n) => ["-i", n]).flat();
-            const concatArgs = [
-                "-y",
-                "-loglevel",
-                "error",
-                ...inputFlags,
-                "-i",
-                inputName,
-                "-filter_complex",
-                `concat=n=${chunkNames.length}:v=1:a=0[outv]`,
-                "-map",
-                "[outv]",
-                "-map",
-                `${chunkNames.length}:a?`,
-                "-c:v",
-                "libx264",
-                "-preset",
-                "ultrafast",
-                "-crf",
-                "20",
-                "-c:a",
-                "copy",
-                "-shortest",
-                "-video_track_timescale",
-                "90000",
-                outputName,
-            ];
-            let ffmpegLog = "";
-            const logHandler = ({ message }) => {
-                ffmpegLog += message + "\n";
-            };
-            instance.on("log", logHandler);
-            const ret = await instance.exec(concatArgs);
-            instance.off?.("log", logHandler);
-            if (ret !== 0) {
-                const tail = ffmpegLog.trim().split("\n").slice(-12).join("\n");
-                logMessage("VFI concat failed (exit " + ret + "):", "error");
-                if (tail) logMessage(tail, "error");
-                progressBar.classList.remove("indeterminate");
-                throw new Error("VFI concat failed with exit code " + ret);
-            }
-            for (const n of chunkNames) {
-                await instance.deleteFile(n).catch(() => {});
-            }
-            outputData = await instance.readFile(outputName);
-            await instance.deleteFile(outputName).catch(() => {});
-        } else {
-            outputData = await runAndRead(
-                buildArgs(buildFilter(), outputName, ["-c:a", "copy"]),
-                outputName,
-            );
-        }
+        const outputData = await runAndRead(
+            buildArgs(buildFilter(), outputName, ["-c:a", "copy"]),
+            outputName,
+        );
 
         logMessage("Completed frame processing.", "success");
         const head = String.fromCharCode(...outputData.slice(4, 12));
@@ -952,245 +855,6 @@ async function extractMovThumbnailFFmpeg(file) {
     }
     return null;
 }
-
-function detectVideoCodecFromMoov(bytes, view, moovBox) {
-    const moovChildren = parseBoxes(
-        bytes,
-        view,
-        moovBox.offset + getBoxHeaderSize(moovBox),
-        moovBox.end,
-    );
-
-    for (const trak of moovChildren.filter((b) => b.type === "trak")) {
-        const trakChildren = parseBoxes(
-            bytes,
-            view,
-            trak.offset + getBoxHeaderSize(trak),
-            trak.end,
-        );
-        const mdiaBox = trakChildren.find((b) => b.type === "mdia");
-        if (!mdiaBox) continue;
-
-        const mdiaChildren = parseBoxes(
-            bytes,
-            view,
-            mdiaBox.offset + getBoxHeaderSize(mdiaBox),
-            mdiaBox.end,
-        );
-        const minfBox = mdiaChildren.find((b) => b.type === "minf");
-        if (!minfBox) continue;
-
-        const minfChildren = parseBoxes(
-            bytes,
-            view,
-            minfBox.offset + getBoxHeaderSize(minfBox),
-            minfBox.end,
-        );
-        const stblBox = minfChildren.find((b) => b.type === "stbl");
-        if (!stblBox) continue;
-
-        const stblChildren = parseBoxes(
-            bytes,
-            view,
-            stblBox.offset + getBoxHeaderSize(stblBox),
-            stblBox.end,
-        );
-        const stsdBox = stblChildren.find((b) => b.type === "stsd");
-        if (!stsdBox) continue;
-
-        const contentStart = stsdBox.offset + getBoxHeaderSize(stsdBox);
-        if (contentStart + 16 > stsdBox.end) continue;
-
-        return String.fromCharCode(
-            bytes[contentStart + 12],
-            bytes[contentStart + 13],
-            bytes[contentStart + 14],
-            bytes[contentStart + 15],
-        );
-    }
-
-    return "unknown";
-}
-
-function normalizeContainer(inputBytes, inputView) {
-    const fileSize = inputBytes.length;
-    const topBoxes = parseBoxes(inputBytes, inputView, 0, fileSize);
-
-    const ftypBox = topBoxes.find((b) => b.type === "ftyp");
-    const moovBox = topBoxes.find((b) => b.type === "moov");
-    const mdatBox = topBoxes.find((b) => b.type === "mdat");
-
-    if (!moovBox) {
-        return {
-            newBuffer: inputBytes.buffer,
-            newBytes: inputBytes,
-            newView: inputView,
-            changed: false,
-            valid: false,
-        };
-    }
-
-    if (!mdatBox) {
-        return {
-            newBuffer: inputBytes.buffer,
-            newBytes: inputBytes,
-            newView: inputView,
-            changed: false,
-            valid: true,
-        };
-    }
-
-    const moovBeforeMdat = moovBox.offset < mdatBox.offset;
-    let needsFtypRewrite = false;
-    let ftypBytes = null;
-
-    if (ftypBox) {
-        const ftypContent = inputBytes.subarray(
-            ftypBox.offset + getBoxHeaderSize(ftypBox),
-            ftypBox.end,
-        );
-        const majorBrand = String.fromCharCode(
-            ftypContent[0],
-            ftypContent[1],
-            ftypContent[2],
-            ftypContent[3],
-        );
-        if (majorBrand !== "isom") {
-            needsFtypRewrite = true;
-
-            const detectedCodec = detectVideoCodecFromMoov(
-                inputBytes,
-                inputView,
-                moovBox,
-            );
-            const isHevc = detectedCodec === "hvc1" || detectedCodec === "hev1";
-
-            if (isHevc) {
-                const newFtypSize = 32;
-                const newFtyp = new Uint8Array(newFtypSize);
-                const v = new DataView(newFtyp.buffer);
-                v.setUint32(0, newFtypSize, false);
-                newFtyp[4] = 0x66;
-                newFtyp[5] = 0x74;
-                newFtyp[6] = 0x79;
-                newFtyp[7] = 0x70;
-                newFtyp[8] = 0x69;
-                newFtyp[9] = 0x73;
-                newFtyp[10] = 0x6f;
-                newFtyp[11] = 0x34;
-                v.setUint32(12, 0x00000200, false);
-                newFtyp[16] = 0x69;
-                newFtyp[17] = 0x73;
-                newFtyp[18] = 0x6f;
-                newFtyp[19] = 0x6d;
-                newFtyp[20] = 0x69;
-                newFtyp[21] = 0x73;
-                newFtyp[22] = 0x6f;
-                newFtyp[23] = 0x32;
-                newFtyp[24] = 0x68;
-                newFtyp[25] = 0x76;
-                newFtyp[26] = 0x63;
-                newFtyp[27] = 0x31;
-                newFtyp[28] = 0x6d;
-                newFtyp[29] = 0x70;
-                newFtyp[30] = 0x34;
-                newFtyp[31] = 0x31;
-                ftypBytes = newFtyp;
-            } else {
-                const newFtypSize = 28;
-                const newFtyp = new Uint8Array(newFtypSize);
-                const v = new DataView(newFtyp.buffer);
-                v.setUint32(0, newFtypSize, false);
-                newFtyp[4] = 0x66;
-                newFtyp[5] = 0x74;
-                newFtyp[6] = 0x79;
-                newFtyp[7] = 0x70;
-                newFtyp[8] = 0x69;
-                newFtyp[9] = 0x73;
-                newFtyp[10] = 0x6f;
-                newFtyp[11] = 0x6d;
-                newFtyp[12] = 0x00;
-                newFtyp[13] = 0x00;
-                newFtyp[14] = 0x02;
-                newFtyp[15] = 0x00;
-                newFtyp[16] = 0x69;
-                newFtyp[17] = 0x73;
-                newFtyp[18] = 0x6f;
-                newFtyp[19] = 0x6d;
-                newFtyp[20] = 0x69;
-                newFtyp[21] = 0x73;
-                newFtyp[22] = 0x6f;
-                newFtyp[23] = 0x32;
-                newFtyp[24] = 0x6d;
-                newFtyp[25] = 0x70;
-                newFtyp[26] = 0x34;
-                newFtyp[27] = 0x31;
-                ftypBytes = newFtyp;
-            }
-        }
-    }
-
-    if (moovBeforeMdat && !needsFtypRewrite) {
-        return {
-            newBuffer: inputBytes.buffer,
-            newBytes: inputBytes,
-            newView: inputView,
-            changed: false,
-            valid: true,
-        };
-    }
-
-    const ftypSize =
-        needsFtypRewrite && ftypBytes
-            ? ftypBytes.length
-            : ftypBox
-              ? ftypBox.size
-              : 0;
-    const moovSize = moovBox.size;
-    const mdatSize = mdatBox.size;
-    const newSize = ftypSize + moovSize + mdatSize;
-
-    const newBuffer = new ArrayBuffer(newSize);
-    const newBytes = new Uint8Array(newBuffer);
-    const newView = new DataView(newBuffer);
-
-    let writePos = 0;
-
-    if (needsFtypRewrite && ftypBytes) {
-        newBytes.set(ftypBytes, writePos);
-        writePos += ftypBytes.length;
-    } else if (ftypBox) {
-        newBytes.set(
-            inputBytes.subarray(ftypBox.offset, ftypBox.end),
-            writePos,
-        );
-        writePos += ftypBox.size;
-    }
-
-    newBytes.set(inputBytes.subarray(moovBox.offset, moovBox.end), writePos);
-    const newMoovOffset = writePos;
-    writePos += moovBox.size;
-
-    newBytes.set(inputBytes.subarray(mdatBox.offset, mdatBox.end), writePos);
-    writePos += mdatBox.size;
-
-    const newMdatOffset = newMoovOffset + moovBox.size;
-    const chunkOffsetDelta = newMdatOffset - mdatBox.offset;
-
-    if (chunkOffsetDelta !== 0) {
-        updateChunkOffsets(
-            newBytes,
-            newView,
-            newMoovOffset +
-                getBoxHeaderSize({ offset: newMoovOffset, size: moovBox.size }),
-            newMoovOffset + moovBox.size,
-            chunkOffsetDelta,
-        );
-    }
-
-    return { newBuffer, newBytes, newView, changed: true, valid: true };
-}
-
 async function patchSingleFile(item) {
     const resolutionEl = document.getElementById("outputResolution");
     const targetRes = resolutionEl
@@ -1248,7 +912,6 @@ async function patchSingleFile(item) {
             dims.width,
             dims.height,
             targetRes,
-            videoInfo?.duration || 0,
         );
         sourceBuffer = workingBuffer;
         logMessage(

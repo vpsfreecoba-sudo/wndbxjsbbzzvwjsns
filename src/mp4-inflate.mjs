@@ -1,4 +1,5 @@
 import {
+    detectCodecFromStbl,
     getBoxHeaderSize,
     parseBoxes,
     updateBoxSize,
@@ -230,25 +231,6 @@ function buildCo64Atom(
     return b;
 }
 
-function detectCodec(bytes, stblBox, getBoxHeaderSize, parseBoxes) {
-    const stblChildren = parseBoxes(
-        bytes,
-        new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength),
-        stblBox.offset + getBoxHeaderSize(stblBox),
-        stblBox.end,
-    );
-    const stsdBox = stblChildren.find((b) => b.type === "stsd");
-    if (!stsdBox) return "unknown";
-    const contentStart = stsdBox.offset + getBoxHeaderSize(stsdBox);
-    if (contentStart + 16 > stsdBox.end) return "unknown";
-    return String.fromCharCode(
-        bytes[contentStart + 12],
-        bytes[contentStart + 13],
-        bytes[contentStart + 14],
-        bytes[contentStart + 15],
-    );
-}
-
 function buildStscPatch(inputBytes, inputView, stscBox, origStcoCount) {
     const origEntryCount = inputView.getUint32(stscBox.offset + 12, false);
     const newEntryCount = origEntryCount + 1;
@@ -323,12 +305,7 @@ export function inflateSampleTableVideo(inputBytes, inputView, multiplier = 5) {
     if (realCount === 0) throw new Error("No video samples found");
     const sampleDelta = Math.round(totalDuration / realCount);
 
-    const codec = detectCodec(
-        inputBytes,
-        stblBox,
-        getBoxHeaderSize,
-        parseBoxes,
-    );
+    const codec = detectCodecFromStbl(inputBytes, stblBox);
     const dummySize = DUMMY_SIZES[codec] || DEFAULT_DUMMY_SIZE;
 
     const origChunkCount = stcoBox

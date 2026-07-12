@@ -1,6 +1,6 @@
 {
     "name": "noblur",
-    "version": "2.4.0",
+    "version": "2.5.0",
     "type": "module",
     "scripts": {
         "generate-changelog": "node scripts/generate-changelog.mjs",
@@ -12,10 +12,7 @@
     },
     "dependencies": {
         "@ffmpeg/ffmpeg": "^0.12.15",
-        "@ffmpeg/util": "^0.12.2",
-        "@remixicon/react": "^4.9.0",
-        "lucide": "^0.475.0",
-        "remixicon": "^4.9.1"
+        "@ffmpeg/util": "^0.12.2"
     },
     "devDependencies": {
         "@biomejs/biome": "~1.5.3",
