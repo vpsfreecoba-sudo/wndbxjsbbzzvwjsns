@@ -1,5 +1,19 @@
 export const changelogData = [
   {
+    "version": "2.6.0",
+    "date": "2026-07-12",
+    "changes": [
+      "VFI simplified to single-pass; segment/concat removed",
+      "Added binary pipeline tests with real MP4/MOV fixtures",
+      "Codec detection refactored into mp4-boxes — deduplicated",
+      "GitHub Pages: assets moved to repo root with .nojekyll",
+      "Worker/core URLs absolute same-origin (fix esm.sh resolution)",
+      "COI service worker injects COEP on worker requests",
+      "Removed unused icon deps (@remixicon/react, lucide, remixicon)",
+      "Bumped version to 2.6.0"
+    ]
+  },
+  {
     "version": "2.5.0",
     "date": "2026-07-12",
     "changes": [

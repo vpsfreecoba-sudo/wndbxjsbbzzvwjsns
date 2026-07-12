@@ -2,6 +2,17 @@
 
 All notable changes to the NoBlur project are documented in this file.
 
+## [2.6.0] - 2026-07-12
+
+- VFI simplified to single-pass; segment/concat removed
+- Added binary pipeline tests with real MP4/MOV fixtures
+- Codec detection refactored into mp4-boxes — deduplicated
+- GitHub Pages: assets moved to repo root with .nojekyll
+- Worker/core URLs absolute same-origin (fix esm.sh resolution)
+- COI service worker injects COEP on worker requests
+- Removed unused icon deps (@remixicon/react, lucide, remixicon)
+- Bumped version to 2.6.0
+
 ## [2.5.0] - 2026-07-12
 
 - VFI interpolation cap raised from 480p to 1080p on all devices
