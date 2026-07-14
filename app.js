@@ -65,12 +65,13 @@ function adjustMobileLayout() {
 
     const isMobile = currentWidth <= MOBILE_BREAKPOINT;
     const header = document.querySelector(".header");
+    const panelHeader = header ? header.parentNode : null;
     const panelLeft = document.querySelector(".panel-left");
     const panelRight = document.querySelector(".panel-right");
     const dropZoneEl = document.getElementById("dropZone");
     if (isMobile) {
-        if (dropZoneEl && header && dropZoneEl.parentNode !== panelLeft) {
-            header.after(dropZoneEl);
+        if (dropZoneEl && panelHeader && dropZoneEl.parentNode !== panelHeader) {
+            panelHeader.after(dropZoneEl);
         }
     } else {
         if (dropZoneEl && panelRight && dropZoneEl.parentNode !== panelRight) {

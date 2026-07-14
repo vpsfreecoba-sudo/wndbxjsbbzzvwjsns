@@ -39,8 +39,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: var(--space-xxxl) var(--space-lg);
+    justify-content: flex-start;
+    padding: var(--space-lg) var(--space-lg);
     background-image: radial-gradient(#000000 15%, transparent 15%);
     background-size: 16px 16px;
     overflow-x: hidden;
@@ -65,13 +65,28 @@ body {
     background: #ff6f3f;
 }
 
-.container {
+.page {
     width: 100%;
     max-width: 1300px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.container {
+    width: 100%;
     display: grid;
     grid-template-columns: 390px 1fr 310px;
     gap: var(--space-md);
     align-items: start;
+}
+
+.panel-header .header {
+    text-align: center;
+    align-items: center;
+    border-bottom: none;
+    padding-bottom: 0;
+    gap: 2px;
 }
 
 .panel {
@@ -837,9 +852,11 @@ body {
     flex-direction: column;
     gap: var(--space-sm);
     width: 100%;
-    margin-top: var(--space-md);
-    border-top: var(--border-thick);
-    padding-top: var(--space-lg);
+    background: var(--bg-panel);
+    border: var(--border-thick);
+    border-radius: 4px;
+    box-shadow: var(--shadow-flat);
+    padding: var(--space-lg);
 }
 
 .history-header {
@@ -1365,32 +1382,31 @@ body {
 }
 
 @media (max-width: 900px) {
+    .page {
+        max-width: 480px;
+    }
     .container {
         display: flex;
         flex-direction: column;
-        gap: var(--space-sm);
+        gap: var(--space-md);
         max-width: 480px;
         width: 100%;
         align-items: stretch;
     }
-    .panel {
+    .container .panel:not(.panel-log) {
         display: contents;
     }
-    .header {
-        order: 1;
-        background: var(--bg-panel);
-        border: var(--border-thick);
-        box-shadow: var(--shadow-flat);
-        border-radius: 4px;
+    .panel-header {
         padding: var(--space-md);
-        width: 100%;
-        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-md);
     }
     .drop-zone {
-        order: 3;
         width: 100%;
         box-sizing: border-box;
         padding: var(--space-xl) var(--space-md);
+        gap: var(--space-lg);
     }
     .control-box {
         order: 4;
@@ -1426,7 +1442,7 @@ body {
         padding: var(--space-md);
         width: 100%;
         box-sizing: border-box;
-        order: 6;
+        order: 8;
     }
     .status-log,
     .panel-log .status-log {
