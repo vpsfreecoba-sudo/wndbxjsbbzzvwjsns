@@ -23,6 +23,54 @@
     }
   }
   </script>
+  <style>
+    /* ===== PERBAIKAN TULISAN BOCOR & TEBAL ===== */
+    .tutorial-header {
+      font-weight: 700 !important;
+    }
+    .tutorial-list li {
+      font-weight: 600 !important;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+    .queue-title {
+      font-weight: 700 !important;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+    .btn-patch {
+      font-weight: 700 !important;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+    .upload-note {
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+    .interpolator-note {
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+    .drop-text-primary,
+    .drop-text-secondary {
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+    .header-title,
+    .header-subtitle {
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+    .log-title {
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+    /* Pastikan tombol "Proses Video" gak kepotong */
+    .btn-patch span {
+      white-space: normal;
+      word-break: break-word;
+    }
+  </style>
 </head>
 <body>
 
@@ -43,25 +91,7 @@
             <div class="interpolator-header">
               <span class="interpolator-title">PENGATURAN VIDEO</span>
             </div>
-            <div class="interpolator-options">
-              <label class="checkbox-container">
-                <input type="checkbox" id="enableInterpolation">
-                <span class="checkmark"></span>
-                <span class="label-text">Aktifkan Interpolasi 60fps</span>
-              </label>
-              <div class="interpolator-description">
-                Membuat frame tambahan di antara frame yang sudah ada untuk menghasilkan output 60fps — membuat gerakan terlihat lebih halus. Menggunakan mesin FFmpeg VFI lokal; waktu proses tergantung CPU dan durasi video.
-              </div>
-            </div>
-            <div class="interpolator-resolution" id="vfiResolutionBox" style="display: none;">
-              <div class="stat-item">
-                <span class="stat-label">RESOLUSI OUTPUT</span>
-                <select class="stat-select" id="outputResolution">
-                  <option value="1080" selected>1080p</option>
-                  <option value="1440">2K (1440p)</option>
-                </select>
-              </div>
-            </div>
+            <!-- HAPUS checkbox Enable 60fps & dropdown resolusi -->
             <div class="interpolator-info">
               <div class="interpolator-note">
                 <i class="ri-cpu-fill"></i>
@@ -111,7 +141,7 @@
                 <span>CARA UPLOAD KE TIKTOK</span>
               </div>
               <ol class="tutorial-list">
-                <li>Download video ini</li>
+                <li><strong>Download</strong> video ini</li>
                 <li>Buka <strong>TikTok Web</strong> di PC/Laptop (browser)</li>
                 <li>Upload video seperti biasa</li>
                 <li><strong>JANGAN pilih PRIVATE</strong> — langsung upload aja</li>
@@ -123,7 +153,7 @@
           </div>
         </div>
 
-        <!-- Tetap ada untuk menghindari error JS, tapi disembunyikan lewat CSS -->
+        <!-- History container (tetap ada) -->
         <div class="history-container">
           <div class="history-header" id="historyHeader">
             <div class="history-header-left">
@@ -164,38 +194,8 @@
     <span id="changelogContainer"></span>
   </div>
 
-  <div class="modal-overlay" id="vfiModal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <div class="modal-header-left">
-          <i class="ri-flashlight-fill"></i>
-          <span class="modal-title">INTERPOLASI 60FPS</span>
-        </div>
-        <button class="modal-close-btn" id="closeVfiModalBtn">
-          <i class="ri-close-fill"></i>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="modal-warning-block">
-          <i class="ri-alert-fill"></i>
-          <span>Peringatan Performa</span>
-        </div>
-        <ul class="modal-warning-list">
-          <li>Kecepatan proses sepenuhnya tergantung pada perangkat lokal Anda.</li>
-          <li>CPU kelas rendah dapat memerlukan beberapa menit untuk setiap video.</li>
-          <li>CPU multi-core memberikan hasil yang jauh lebih cepat.</li>
-          <li>Resolusi output diatur melalui pilihan di atas.</li>
-        </ul>
-        <div class="modal-footer-note">
-          Dengan mengaktifkan fitur ini, Anda memahami bahwa waktu proses tidak dapat dijamin dan bisa sangat berbeda tergantung kemampuan perangkat Anda.
-        </div>
-      </div>
-      <div class="modal-actions">
-        <button class="modal-btn modal-btn-cancel" id="cancelVfiBtn">Batal</button>
-        <button class="modal-btn modal-btn-confirm" id="confirmVfiBtn">Tetap Aktifkan</button>
-      </div>
-    </div>
-  </div>
+  <!-- HAPUS modal VFI -->
+  <!-- <div class="modal-overlay" id="vfiModal"> ... </div> -->
 
   <div class="modal-overlay" id="tiktokModal">
     <div class="modal-card">
