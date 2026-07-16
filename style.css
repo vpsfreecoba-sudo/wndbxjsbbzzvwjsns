@@ -1660,3 +1660,47 @@ body {
     padding: 12px 0;
     font-family: "JetBrains Mono", monospace;
 }
+
+/* ===== POPUP FOLLOW @xd_minn ===== */
+.popup-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+.popup-overlay.active { opacity: 1; visibility: visible; }
+.popup-card {
+  background: #1a1a2e; border: 3px solid #00bfff; border-radius: 24px;
+  padding: 40px 32px 28px; max-width: 400px; width: 90%;
+  text-align: center; position: relative;
+  transform: scale(0.8) translateY(30px);
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 20px 60px rgba(0,191,255,0.3);
+}
+.popup-overlay.active .popup-card { transform: scale(1) translateY(0); }
+.popup-close {
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(255,255,255,0.1); border: none; color: #fff;
+  width: 36px; height: 36px; border-radius: 50%; font-size: 22px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.3s;
+}
+.popup-close:hover { background: rgba(255,255,255,0.25); }
+.popup-icon { font-size: 48px; color: #ff2d55; margin-bottom: 12px; animation: popupPulse 2s ease-in-out infinite; }
+@keyframes popupPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+.popup-title { font-family:'TikTok Sans',sans-serif; font-size:24px; font-weight:800; color:#fff; margin-bottom:8px; }
+.popup-desc { font-family:'TikTok Sans',sans-serif; font-size:14px; color:rgba(255,255,255,0.7); margin-bottom:24px; line-height:1.5; }
+.popup-buttons { display:flex; flex-direction:column; gap:12px; margin-bottom:16px; }
+.popup-btn { display:flex; align-items:center; justify-content:center; gap:10px; padding:14px 20px; border-radius:14px; font-family:'TikTok Sans',sans-serif; font-size:16px; font-weight:700; text-decoration:none; cursor:pointer; border:none; transition:transform .2s,box-shadow .2s; }
+.popup-btn:active { transform:scale(0.96); }
+.popup-btn-tiktok { background:#00bfff; color:#000; box-shadow:0 4px 20px rgba(0,191,255,0.4); }
+.popup-btn-tiktok:hover { box-shadow:0 6px 28px rgba(0,191,255,0.6); }
+.popup-btn-wa { background:#25d366; color:#fff; box-shadow:0 4px 20px rgba(37,211,102,0.4); }
+.popup-btn-wa:hover { box-shadow:0 6px 28px rgba(37,211,102,0.6); }
+.popup-btn-later { background:transparent; color:rgba(255,255,255,0.5); font-size:14px; padding:8px; width:100%; }
+.popup-btn-later:hover { color:rgba(255,255,255,0.8); }
+
