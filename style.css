@@ -1661,6 +1661,59 @@ body {
     font-family: "JetBrains Mono", monospace;
 }
 
+/* ===== TUTORIAL BOX ===== */
+.tutorial-box {
+    background: var(--bg-inner);
+    border: var(--border-thick);
+    border-radius: 4px;
+    padding: var(--space-sm) var(--space-md);
+    box-shadow: 3px 3px 0px #000000;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.tutorial-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--color-accent);
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #000000;
+    padding-bottom: var(--space-xs);
+    margin-bottom: var(--space-sm);
+}
+
+.tutorial-header i {
+    font-size: 13px;
+    color: var(--color-accent);
+    flex-shrink: 0;
+}
+
+.tutorial-list {
+    margin: 0;
+    padding-left: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tutorial-list li {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: #cccccc;
+    line-height: 1.55;
+    word-break: break-word;
+}
+
+.tutorial-list li strong {
+    color: var(--color-text);
+    font-weight: 800;
+}
+
 /* ===== POPUP FOLLOW @xd_minn ===== */
 .popup-overlay {
   position: fixed; inset: 0;
