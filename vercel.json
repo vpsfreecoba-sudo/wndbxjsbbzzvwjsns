@@ -1,16 +1,14 @@
 {
-    "buildCommand": null,
-    "outputDirectory": ".",
-    "framework": null,
+    "version": 2,
+    "builds": [
+        { "src": "index.html", "use": "@vercel/static" }
+    ],
     "headers": [
         {
             "source": "/(.*)",
             "headers": [
                 { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
-                {
-                    "key": "Cross-Origin-Embedder-Policy",
-                    "value": "credentialless"
-                }
+                { "key": "Cross-Origin-Embedder-Policy", "value": "credentialless" }
             ]
         }
     ]
